@@ -104,27 +104,3 @@ The brief raised the option for a borrower to pay a small additional fee to exte
 | Repayment Handler | Verifies USDG repayment amount, releases collateral, distributes interest and platform fee. |
 | Default Handler | Transfers collateral to the lender if the deadline passes unpaid. |
 
-## 8. Open Decisions Needed From Client
-
-The following points are not yet finalized and directly affect contract design. We'd like the client's input before development begins:
-
-1. **Loan extension mechanics** : if i am to add an extension mechanism, does the lender have any approval right over an extension, or is it automatic once the borrower pays the extension fee? and Is there a cap on how many times a loan can be extended?
-2. **Bundle default value** : in the worked example, a $40 loan is backed by 10 NFTs worth roughly $50 at floor. On default, the lender receives all 10. Is this outcome intentional, or should partial-release logic be considered for bundles?
-3. **Interest rate policy** : should v1 launch with a platform-wide fixed rate, fully borrower-set rates, or fully negotiable rates from day one?
-4. **Fee structure** : i will also need you to confirm if a platform fee should be applied or it should be a free market.
-
-## 9. Phased Roadmap
-
-| Phase | Scope |
-|---|---|
-| **Phase 1 (this spec)** | Single collection only. Individual and bundle listings, negotiated or fixed terms, repayment and default handling, USDG on Robinhood Chain. |
-
-if there is a need for an expansion later on:
-
-| **Phase 2** | Open the platform to additional NFT collections; introduce collection-level risk parameters (e.g. floor-price-aware limits) as the pool of supported collections grows. |
-| **Phase 3** | Potential additions depending on adoption: refinancing/extension automation, secondary market for active loan positions, lender analytics dashboard. |
-
-## 10. Next Steps
-
-- i will need you to review and confirm the open decisions in Section 8.
-- upon clarification, worked will be commenced and platform will built and delivered withing 3-4 days.
