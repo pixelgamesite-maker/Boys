@@ -1,21 +1,3 @@
-// Tiny production server for the built site.
-//
-// Why this exists instead of the old Caddyfile: the floor-price feature
-// needs a real request to OpenSea's API, and that call has to happen on a
-// server, not in the browser. Two reasons — (1) OpenSea's v2 API requires an
-// API key sent as a header, and shipping that key inside the JS bundle means
-// anyone can copy it out of devtools and burn our rate limit; (2) OpenSea's
-// API has a long history of rejecting direct browser calls with a CORS
-// error, so calling it straight from React would just fail in production
-// regardless. Routing it through this server sidesteps both problems and
-// lets every visitor share one cached result instead of each one spending
-// our hourly quota.
-//
-// Everything else this file does — serve /dist, fall back unknown paths to
-// index.html so client-side routing works — is exactly what the Caddyfile
-// used to do. No new npm dependency: Node 18+ ships a global fetch, and
-// static-file serving is a small enough job to do with node:http directly.
-
 import { createServer } from "node:http";
 import { createReadStream, existsSync, statSync } from "node:fs";
 import { extname, join, normalize } from "node:path";
@@ -47,11 +29,8 @@ const MIME = {
   ".map": "application/json; charset=utf-8",
 };
 
-/* ── Floor price (server-side, cached) ──────────────────────────────────── */
-
-/** @type {{ value: number; symbol: string; fetchedAt: number } | null} */
 let cache = null;
-/** @type {Promise<any> | null} */
+
 let inFlight = null;
 
 async function getFloorPrice() {
@@ -64,7 +43,6 @@ async function getFloorPrice() {
       : { ok: false, reason: "not_configured" };
   }
 
-  // Collapse concurrent requests into one upstream call.
   if (!inFlight) {
     inFlight = fetchFromOpenSea().finally(() => {
       inFlight = null;
@@ -104,8 +82,6 @@ async function fetchFromOpenSea() {
   return { value, symbol, fetchedAt: Date.now() };
 }
 
-/* ── Static file serving with SPA fallback ──────────────────────────────── */
-
 function serveFile(res, path) {
   const type = MIME[extname(path)] || "application/octet-stream";
   res.writeHead(200, { "Content-Type": type });
@@ -121,11 +97,9 @@ function serveStatic(req, res) {
     return serveFile(res, candidate);
   }
 
-  // Client-side routing: unknown paths fall back to index.html.
   return serveFile(res, join(DIST_DIR, "index.html"));
 }
 
-/* ── Server ──────────────────────────────────────────────────────────────*/
 
 const server = createServer(async (req, res) => {
   if (req.method === "GET" && req.url.startsWith("/api/floor-price")) {
